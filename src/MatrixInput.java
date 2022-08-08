@@ -1,8 +1,10 @@
 
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.*;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class MatrixInput extends JDialog {
@@ -12,12 +14,11 @@ public class MatrixInput extends JDialog {
     private JPanel MatrixDialogMainPanel;
     private JButton buttonConfirm;
     public static int criteriaArraySize;
+    public static ArrayList<String> criteriaArray;
+    public float[] weights;
+    public int errorCounter;
 
-    public interface MatrixInputResponse{
-        void getResponse();
-    }
-
-    public MatrixInput(int criteriaArraySize) {
+    public MatrixInput(int criteriaArraySize,ArrayList<String> criteriaArray) {
         setContentPane(contentPane);
         setModal(true);
         getRootPane().setDefaultButton(buttonOK);
@@ -45,6 +46,25 @@ public class MatrixInput extends JDialog {
             }
         }
 
+        //TODO Ask if it should say the criteria name
+        for(int i=1;i<criteriaArraySize+1;i++){
+            gbc.gridx = i;
+            gbc.gridy = 0;
+            JLabel jLabel = new JLabel(criteriaArray.get(i-1));
+            jLabel.setBorder(new EmptyBorder(0,10,0,10));
+            MatrixDialogMainPanel.add(jLabel, gbc);
+
+        }
+
+        for (int j=1;j<criteriaArraySize+1;j++){
+            gbc.gridx = 0;
+            gbc.gridy = j;
+            JLabel jLabel = new JLabel(criteriaArray.get(j-1));
+            jLabel.setBorder(new EmptyBorder(0,10,0,10));
+            MatrixDialogMainPanel.add(jLabel, gbc);
+        }
+
+
 
         buttonOK.addActionListener(e -> onOK());
 
@@ -68,121 +88,117 @@ public class MatrixInput extends JDialog {
                 ArrayList<Float> numbers = new ArrayList<>();
                 int k = 0;
                 //Getting values from JTextFields by traversing JTextField array
+                try {
                 for (JTextField text : jTextFieldArrayList) {
-                    switch (text.getText()) {
-                        case "1/2" -> numbers.add(1 / 2f);
-                        case "1/3" -> numbers.add(1 / 3f);
-                        case "1/4" -> numbers.add(1 / 4f);
-                        case "1/5" -> numbers.add(1 / 5f);
-                        case "1/6" -> numbers.add(1 / 6f);
-                        case "1/7" -> numbers.add(1 / 7f);
-                        case "1/8" -> numbers.add(1 / 8f);
-                        case "1/9" -> numbers.add(1 / 9f);
-                        default -> numbers.add(Float.parseFloat(text.getText()));
+                        switch (text.getText()) {
+                            case "1/2" -> numbers.add(1 / 2f);
+                            case "1/3" -> numbers.add(1 / 3f);
+                            case "1/4" -> numbers.add(1 / 4f);
+                            case "1/5" -> numbers.add(1 / 5f);
+                            case "1/6" -> numbers.add(1 / 6f);
+                            case "1/7" -> numbers.add(1 / 7f);
+                            case "1/8" -> numbers.add(1 / 8f);
+                            case "1/9" -> numbers.add(1 / 9f);
+                            default -> {
+                                if(Float.parseFloat(text.getText())<=9 && Float.parseFloat((text.getText()))>=1)
+                                numbers.add(Float.parseFloat(text.getText()));
+                            }
+                        }
                     }
+                }catch (Exception notValidNumber){
+                    //TODO add an error message for user
+                    System.out.println("At least one number is invalid");
                 }
 
                 //Creating array with preferences
                 float[][] array = new float[criteriaArraySize][criteriaArraySize];
 
-                for (int i = 0; i < criteriaArraySize; i++) {
-                    for (int j = 0; j < criteriaArraySize; j++) {
-                        if (i == j) array[i][j] = 1;
-                        if (i > j) {
-                            array[j][i] = numbers.get(k);
-                            array[i][j] = 1 / (numbers.get(k));
-                            k++;
+                if(!numbers.isEmpty()) {
+
+                    for (int i = 0; i < criteriaArraySize; i++) {
+                        for (int j = 0; j < criteriaArraySize; j++) {
+                            if (i == j) array[i][j] = 1;
+                            if (i > j) {
+                                array[j][i] = numbers.get(k);
+                                array[i][j] = 1 / (numbers.get(k));
+                                k++;
+                            }
                         }
                     }
-                }
-                //Printing array from JTextFields
-                for (float[] x : array) {
-                    for (float y : x) {
-                        System.out.print(y + " ");
+
+                    //creating array to calculate sum of columns
+                    float[] c = new float[array.length];
+
+                    //calculating sum of columns
+                    for (float[] floats : array) {
+                        for (int j = 0; j < array[0].length; j++) {
+                            c[j] += floats[j];
+                        }
                     }
-                    System.out.println();
-                }
-                System.out.println();
 
-                //creating array to calculate sum of columns
-                float[] c = new float[array.length];
+                    //creating array to calculate weights
+                    float[][] arrayWithWeights = new float[criteriaArraySize][criteriaArraySize];
 
-                //calculating sum of columns
-                for (float[] floats : array) {
+                    //dividing columns by sum in column
+                    for (int i = 0; i < array[0].length; i++) {
+                        for (int j = 0; j < array.length; j++) {
+                            arrayWithWeights[i][j] = array[i][j] / c[j];
+                        }
+                    }
+
+                    //Creating columns
+                    float[] sumOfWeightedRows = new float[array.length];
+
+                    //sum of elements in columns
+                    for (int i = 0; i < array.length; i++) {
+                        for (int j = 0; j < array[0].length; j++) {
+                            sumOfWeightedRows[i] += arrayWithWeights[i][j];
+                        }
+                    }
+                    //Calculating sum of columns to create weights
+                    float sum = 0;
                     for (int j = 0; j < array[0].length; j++) {
-                        c[j] += floats[j];
+                        System.out.println(sumOfWeightedRows[j]);
+                        sum += sumOfWeightedRows[j];
                     }
-                }
 
-                //printing out sum of columns
-                for (int j=0; j < array[0].length; j++) {
-                    System.out.print(c[j] + "\t");
-                }
+                    //creating array with weights
+                    float[] weights = new float[arrayWithWeights.length];
 
-                System.out.println();
-                System.out.println();
-
-                //creating array to calculate weights
-                float[][] arrayWithWeights = new float[criteriaArraySize][criteriaArraySize];
-
-                //dividing columns by sum in column
-                for(int i=0;i<array[0].length;i++){
-                    for(int j=0; j<array.length;j++){
-                        arrayWithWeights[i][j]=array[i][j]/c[j];
+                    //calculating weights
+                    for (int i = 0; i < array.length; i++) {
+                        weights[i] = sumOfWeightedRows[i] / sum;
+                        System.out.println(weights[i]);
                     }
+
+                    setWeights(weights);
                 }
 
-                for (float[] x : arrayWithWeights) {
-                    for (float y : x) {
-                        System.out.print(y + " ");
-                    }
-                    System.out.println();
-                }
-
-                System.out.println();
-
-                //Creating columns
-                float[] sumOfWeightedRows = new float[array.length];
-
-                //sum of elements in columns
-                for (int i=0; i < array.length; i++) {
-                    for (int j=0; j < array[0].length; j++) {
-                        sumOfWeightedRows[i] += arrayWithWeights[i][j];
-                    }
-                }
-                //Calculating sum of columns to create weights
-                float sum=0;
-                for (int j=0; j < array[0].length; j++) {
-                    System.out.println(sumOfWeightedRows[j]);
-                    sum+=sumOfWeightedRows[j];
-                }
-
-                //creating array with weights
-                float[] weights = new float[arrayWithWeights.length];
-
-                //calculating weights
-                for(int i=0;i<array.length;i++){
-                    weights[i]=sumOfWeightedRows[i]/sum;
-                    System.out.println(weights[i]);
-                }
             }
         });
     }
 
     private void onOK() {
-
         dispose();
     }
 
     private void onCancel() {
-        // add your code here if necessary
         dispose();
     }
 
     public static void main(String[] args) {
-        MatrixInput dialog = new MatrixInput(criteriaArraySize);
+        MatrixInput dialog = new MatrixInput(criteriaArraySize,criteriaArray);
         dialog.pack();
+        dialog.setResizable(true);
         dialog.setVisible(true);
         System.exit(0);
+    }
+
+    public void setWeights(float[] weights) {
+        this.weights = weights;
+    }
+
+    public float[] getWeights() {
+        return  weights;
     }
 }

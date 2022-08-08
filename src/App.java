@@ -12,22 +12,24 @@ public class App extends JFrame {
     private JButton criteriaButton;
     private JLabel criteriaLabel;
     private JPanel criteriaPanel;
-    private JLabel FirstCriteria;
-    private JLabel SecondCriteria;
-    private JLabel ThirdCriteria;
-    private JLabel ForthCriteria;
-    private JLabel FifthCriteria;
-    private JPanel FirstCriteriaPanel;
-    private JPanel SecondCriteriaPanel;
-    private JPanel ThirdCriteriaPanel;
-    private JPanel ForthCriteriaPanel;
-    private JPanel FifthCriteriaPanel;
     private JButton matrixButton;
     private JButton visualButton;
     private JButton verbalButton;
     private JPanel ButtonPanel;
-    private JPanel AddCriteriaPanel;
+    private JButton showWeights;
+    private JList criteriaList;
+    private JPanel criteriaListPanel;
     public ArrayList<String> criteriaArray;
+
+    public float[] getWeights() {
+        return weights;
+    }
+
+    public void setWeights(float[] weights) {
+        this.weights = weights;
+    }
+
+    public float[] weights;
 
     String nodeName = "";
 
@@ -36,13 +38,11 @@ public class App extends JFrame {
 
         criteriaArray = new ArrayList<>();
         criteriaPanel.setVisible(false);
-        criteriaPanel.setSize(100,100);
-        FirstCriteriaPanel.setVisible(false);
-        SecondCriteriaPanel.setVisible(false);
-        ThirdCriteriaPanel.setVisible(false);
-        ForthCriteriaPanel.setVisible(false);
-        FifthCriteriaPanel.setVisible(false);
+        criteriaPanel.setSize(100, 100);
         ButtonPanel.setVisible(false);
+        DefaultListModel<String> defListModel = new DefaultListModel<String>();
+        criteriaList.setModel(defListModel);
+        criteriaList.setVisible(false);
 
         newModelButton.addActionListener(e -> {
             if (!getNodeName.getText().isBlank()) {
@@ -52,47 +52,45 @@ public class App extends JFrame {
                 showNodeName.setText(nodeName);
                 showNodeName.setFont(new Font("Times New Roman", Font.BOLD, 20));
                 criteriaPanel.setVisible(true);
+                criteriaList.setVisible(true);
             }
         });
+
         getNodeName.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 getNodeName.setText("");
             }
         });
+
         criteriaButton.addActionListener(e -> {
-            if (!criteriaTextBox.getText().isBlank() && criteriaArray.size()<5) {
+            if (!criteriaTextBox.getText().isBlank() && criteriaArray.size() < 5) {
                 criteriaArray.add(criteriaTextBox.getText());
+                defListModel.addElement(criteriaTextBox.getText());
             }
-            if (criteriaArray.size() == 1) {
-                FirstCriteriaPanel.setVisible(true);
-                FirstCriteria.setText(criteriaArray.get(0));
-            }
+
             if (criteriaArray.size() == 2) {
-                SecondCriteriaPanel.setVisible(true);
-                SecondCriteria.setText(criteriaArray.get(1));
                 ButtonPanel.setVisible(true);
-            }
-            if (criteriaArray.size() == 3) {
-                ThirdCriteriaPanel.setVisible(true);
-                ThirdCriteria.setText(criteriaArray.get(2));
-            }
-            if (criteriaArray.size() == 4) {
-                ForthCriteriaPanel.setVisible(true);
-                ForthCriteria.setText(criteriaArray.get(3));
-            }
-            if (criteriaArray.size() == 5) {
-                FifthCriteriaPanel.setVisible(true);
-                FifthCriteria.setText(criteriaArray.get(4));
             }
         });
 
         matrixButton.addActionListener(e -> {
-            MatrixInput matrixWindow = new MatrixInput(criteriaArray.size());
-            matrixWindow.setSize(300,300);
+            MatrixInput matrixWindow = new MatrixInput(criteriaArray.size(),criteriaArray);
+            matrixWindow.setSize(300, 300);
             matrixWindow.setLocationRelativeTo(null);
             matrixWindow.setVisible(true);
+            setWeights(matrixWindow.getWeights());
         });
+
+        showWeights.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                for(float weight : weights){
+                    System.out.println(weight);
+                }
+            }
+        });
+
     }
 
     public static void main(String[] args) {
