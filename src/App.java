@@ -40,7 +40,7 @@ public class App extends JFrame {
         criteriaPanel.setVisible(false);
         criteriaPanel.setSize(100, 100);
         ButtonPanel.setVisible(false);
-        DefaultListModel<String> defListModel = new DefaultListModel<String>();
+        DefaultListModel<String> defListModel = new DefaultListModel<>();
         criteriaList.setModel(defListModel);
         criteriaList.setVisible(false);
 
@@ -79,8 +79,22 @@ public class App extends JFrame {
             matrixWindow.setSize(300, 300);
             matrixWindow.setLocationRelativeTo(null);
             matrixWindow.setVisible(true);
+            int i=0;
+            setWeights(matrixWindow.getWeights());
+            for(float weight : weights){
+                defListModel.setElementAt(defListModel.getElementAt(i) +" (" + weight +")",i);
+                i++;
+            }
+        });
+
+        visualButton.addActionListener(e -> {
+            MatrixInput matrixWindow = new MatrixInput(criteriaArray.size(),criteriaArray);
+            matrixWindow.setSize(300, 300);
+            matrixWindow.setLocationRelativeTo(null);
+            matrixWindow.setVisible(true);
             setWeights(matrixWindow.getWeights());
         });
+
 
         showWeights.addActionListener(new ActionListener() {
             @Override

@@ -13,6 +13,7 @@ public class MatrixInput extends JDialog {
     private JButton buttonCancel;
     private JPanel MatrixDialogMainPanel;
     private JButton buttonConfirm;
+    private JLabel errorLabel;
     public static int criteriaArraySize;
     public static ArrayList<String> criteriaArray;
     public float[] weights;
@@ -107,7 +108,8 @@ public class MatrixInput extends JDialog {
                     }
                 }catch (Exception notValidNumber){
                     //TODO add an error message for user
-                    System.out.println("At least one number is invalid");
+                    errorLabel.setText("At least one number is invalid");
+                    errorLabel.setForeground(Color.RED);
                 }
 
                 //Creating array with preferences
