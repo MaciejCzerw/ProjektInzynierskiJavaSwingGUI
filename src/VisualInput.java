@@ -1,15 +1,32 @@
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import java.awt.*;
 import java.awt.event.*;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 
 public class VisualInput extends JDialog {
     private JPanel contentPane;
     private JButton buttonOK;
     private JButton buttonCancel;
+    private JPanel visualInput;
+    public static int criteriaArraySize;
+    public static ArrayList<String> criteriaArray;
 
-    public VisualInput() {
+    public VisualInput(int criteriaArraySize,ArrayList<String> criteriaArray) {
         setContentPane(contentPane);
         setModal(true);
         getRootPane().setDefaultButton(buttonOK);
+        setTitle("Visual Input");
+
+        GridBagConstraints gbc = new GridBagConstraints();
+
+        for(int i=0;i<criteriaArraySize;i++){
+            for(int j=i+1;j<criteriaArraySize;j++){
+                System.out.println(criteriaArray.get(i)+criteriaArray.get(j));
+            }
+        }
+
 
         buttonOK.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -50,8 +67,9 @@ public class VisualInput extends JDialog {
     }
 
     public static void main(String[] args) {
-        VisualInput dialog = new VisualInput();
+        VisualInput dialog = new VisualInput(criteriaArraySize,criteriaArray);
         dialog.pack();
+        dialog.setResizable(true);
         dialog.setVisible(true);
         System.exit(0);
     }

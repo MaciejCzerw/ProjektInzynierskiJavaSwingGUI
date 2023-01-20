@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="AlternativeChoiceFlagMenu">
+  <grid id="27dc6" binding="choicePanel" layout-manager="FlowLayout" hgap="5" vgap="5" flow-align="1">
+    <constraints>
+      <xy x="20" y="20" width="500" height="400"/>
+    </constraints>
+    <properties/>
+    <border type="none"/>
+    <children>
+      <component id="534d2" class="javax.swing.JLabel" binding="choiceLabel">
+        <constraints/>
+        <properties>
+          <text value=""/>
+        </properties>
+      </component>
+      <component id="d2855" class="javax.swing.JButton" binding="matrixInput">
+        <constraints/>
+        <properties>
+          <text value="Matrix Input"/>
+        </properties>
+      </component>
+      <component id="f6c7f" class="javax.swing.JButton" binding="visualInput">
+        <constraints/>
+        <properties>
+          <text value="Visual Input"/>
+        </properties>
+      </component>
+    </children>
+  </grid>
+</form>

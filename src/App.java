@@ -9,17 +9,35 @@ public class App extends JFrame {
     private JTextField getNodeName;
     private JLabel showNodeName;
     private JTextField criteriaTextBox;
-    private JButton criteriaButton;
+    private JButton addCriteriaButton;
     private JLabel criteriaLabel;
-    private JPanel criteriaPanel;
+    private JPanel addCriteriaPanel;
     private JButton matrixButton;
     private JButton visualButton;
-    private JButton verbalButton;
-    private JPanel ButtonPanel;
-    private JButton showWeights;
+    private JPanel buttonPanel;
     private JList criteriaList;
+    private JList alternativesList;
     private JPanel criteriaListPanel;
+    private JPanel alternativesListPanel;
+    private JPanel criteriaPanel;
+    private JPanel alternativePanel;
+    private JButton clearButton;
+    private JButton alternativesChoiceFlagButton;
+    private JPanel addAlternativePanel;
+    private JButton addAlternativeButton;
+    private JTextField alternativeTextBox;
+    private JPanel operationalButtonsPanel;
+    private JButton alternativeValuesButton;
+    private JButton calculateButton;
     public ArrayList<String> criteriaArray;
+    public ArrayList<String> alternativeArray;
+    public boolean alternativeChoiceFlag;
+    float sumRow;
+
+    public float finalValue;
+
+    public ArrayList<Float> finalValues;
+    public float[][] finalFinalValue;
 
     public float[] getWeights() {
         return weights;
@@ -29,20 +47,32 @@ public class App extends JFrame {
         this.weights = weights;
     }
 
+    public boolean getAlternativeChoiceFlag(){return alternativeChoiceFlag;}
+    public void setAlternativeChoiceFlag(boolean alternativeChoiceFlag){this.alternativeChoiceFlag = alternativeChoiceFlag;}
+    public void setAlternativeWeights(float[] alternativeWeights){this.alternativeWeights = alternativeWeights;}
+
     public float[] weights;
+    public float[] alternativeWeights;
 
     String nodeName = "";
 
 
     public App() {
-
+        DefaultListModel<String> criteriaListModel = new DefaultListModel<>();
+        DefaultListModel<String> alternativesListModel = new DefaultListModel<>();
         criteriaArray = new ArrayList<>();
-        criteriaPanel.setVisible(false);
-        criteriaPanel.setSize(100, 100);
-        ButtonPanel.setVisible(false);
-        DefaultListModel<String> defListModel = new DefaultListModel<>();
-        criteriaList.setModel(defListModel);
-        criteriaList.setVisible(false);
+        alternativeArray = new ArrayList<>();
+        finalValues = new ArrayList<>();
+        addCriteriaPanel.setVisible(false);
+        addAlternativePanel.setVisible(false);
+        addCriteriaPanel.setSize(100, 100);
+        buttonPanel.setVisible(false);
+        criteriaList.setModel(criteriaListModel);
+        alternativesList.setModel(alternativesListModel);
+        criteriaListPanel.setVisible(false);
+        alternativesListPanel.setVisible(false);
+        operationalButtonsPanel.setVisible(false);
+
 
         newModelButton.addActionListener(e -> {
             if (!getNodeName.getText().isBlank()) {
@@ -51,8 +81,11 @@ public class App extends JFrame {
                 newModelButton.setVisible(false);
                 showNodeName.setText(nodeName);
                 showNodeName.setFont(new Font("Times New Roman", Font.BOLD, 20));
-                criteriaPanel.setVisible(true);
-                criteriaList.setVisible(true);
+                addCriteriaPanel.setVisible(true);
+                criteriaListPanel.setVisible(true);
+                alternativesListPanel.setVisible(true);
+                addAlternativePanel.setVisible(true);
+                operationalButtonsPanel.setVisible(true);
             }
         });
 
@@ -63,15 +96,25 @@ public class App extends JFrame {
             }
         });
 
-        criteriaButton.addActionListener(e -> {
-            if (!criteriaTextBox.getText().isBlank() && criteriaArray.size() < 5) {
+        addCriteriaButton.addActionListener(e -> {
+            if (!criteriaTextBox.getText().isBlank() && criteriaArray.size() < 10) {
                 criteriaArray.add(criteriaTextBox.getText());
-                defListModel.addElement(criteriaTextBox.getText());
+                criteriaListModel.addElement(criteriaTextBox.getText());
             }
 
             if (criteriaArray.size() == 2) {
-                ButtonPanel.setVisible(true);
+                buttonPanel.setVisible(true);
             }
+            criteriaTextBox.setText("");
+        });
+
+        addAlternativeButton.addActionListener(e -> {
+            if (!alternativeTextBox.getText().isBlank() && alternativeArray.size() < 10) {
+                alternativeArray.add(alternativeTextBox.getText());
+                alternativesListModel.addElement(alternativeTextBox.getText());
+            }
+
+            alternativeTextBox.setText("");
         });
 
         matrixButton.addActionListener(e -> {
@@ -82,29 +125,80 @@ public class App extends JFrame {
             int i=0;
             setWeights(matrixWindow.getWeights());
             for(float weight : weights){
-                defListModel.setElementAt(defListModel.getElementAt(i) +" (" + weight +")",i);
+                criteriaListModel.setElementAt(criteriaListModel.getElementAt(i) +" (" + weight +")",i);
                 i++;
             }
         });
 
         visualButton.addActionListener(e -> {
-            MatrixInput matrixWindow = new MatrixInput(criteriaArray.size(),criteriaArray);
-            matrixWindow.setSize(300, 300);
-            matrixWindow.setLocationRelativeTo(null);
-            matrixWindow.setVisible(true);
-            setWeights(matrixWindow.getWeights());
+            VisualInput visualWindow = new VisualInput(criteriaArray.size(),criteriaArray);
+            visualWindow.setSize(300, 300);
+            visualWindow.setLocationRelativeTo(null);
+            visualWindow.setVisible(true);
         });
 
+        alternativesChoiceFlagButton.addActionListener(e -> {
+            AlternativeChoiceFlagMenu alternativeChoiceFlagMenu = new AlternativeChoiceFlagMenu();
+            alternativeChoiceFlagMenu.setSize(200, 130);
+            alternativeChoiceFlagMenu.setLocationRelativeTo(null);
+            alternativeChoiceFlagMenu.setVisible(true);
+            setAlternativeChoiceFlag(alternativeChoiceFlagMenu.getAlternativeChoiceFlag());
+        });
 
-        showWeights.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                for(float weight : weights){
-                    System.out.println(weight);
+        alternativeValuesButton.addActionListener(e -> {
+            if(getAlternativeChoiceFlag()){
+                for (int k = 0; k < criteriaArray.size(); k++) {
+                    String s = criteriaArray.get(k);
+                    int i = 0;
+                    System.out.println("\n");
+                    MatrixInput matrixWindow = new MatrixInput(alternativeArray.size(), alternativeArray, s);
+                    matrixWindow.setSize(300, 300);
+                    matrixWindow.setLocationRelativeTo(null);
+                    matrixWindow.setVisible(true);
+
+                    setAlternativeWeights(matrixWindow.getAlternativeWeights());
+                    for (int j = 0; j < alternativeWeights.length; j++) {
+                        float alternativeWeight = alternativeWeights[j];
+                        float criteriaWeight = weights[k];
+                        float finalWeight = alternativeWeight * criteriaWeight;
+                        finalValues.add(finalWeight);
+                    }
+
+
+
+
                 }
             }
+
         });
 
+        calculateButton.addActionListener(e -> {
+            System.out.println("\n");
+            int i=0;
+            float[][] values = new float[alternativeArray.size()][criteriaArray.size()];
+            for(int r=0; r<alternativeArray.size();r++){
+                for(int c=0; c<criteriaArray.size();c++){
+                    values[r][c] = finalValues.get(i++);
+                }
+            }
+
+            for(int r = 0; r < alternativeArray.size(); r++){
+                sumRow = 0;
+                for(int c = 0; c < criteriaArray.size(); c++){
+                    sumRow = sumRow + values[r][c];
+                }
+                System.out.println("Sum of " + (r+1) +" row: " + sumRow);
+                alternativesListModel.setElementAt(alternativesListModel.getElementAt(r) +" (" + sumRow +")",r);
+            }
+
+        });
+
+        clearButton.addActionListener(e ->{
+            criteriaArray.clear();
+            alternativeArray.clear();
+            alternativesListModel.clear();
+            criteriaListModel.clear();
+        });
     }
 
     public static void main(String[] args) {
